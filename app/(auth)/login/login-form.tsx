@@ -16,11 +16,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LoginBody, LoginBodyType } from "@/schemaValidations/auth.schema";
-import envConfig from "@/app/config";
+import envConfig from "@/config";
 import { useToast } from "@/hooks/use-toast";
+import { useAppContext } from "@/app/app-provider";
 
 const LoginForm: React.FC = () => {
   const { toast } = useToast();
+  const { setSessionToken } = useAppContext();
 
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -48,7 +50,6 @@ const LoginForm: React.FC = () => {
           payload,
         };
         if (!res.ok) {
-          console.log(data, "data");
           throw data;
         }
         return data;
@@ -56,13 +57,30 @@ const LoginForm: React.FC = () => {
       toast({
         description: result.payload.message,
       });
+      const resultFormNextServer = await fetch("/api/auth", {
+        method: "POST",
+        body: JSON.stringify(result),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(async (res) => {
+        const payload = await res.json();
+        const data = {
+          status: res.status,
+          payload,
+        };
+        if (!res.ok) {
+          throw data;
+        }
+        return data;
+      });
+      setSessionToken(resultFormNextServer.payload.data.token);
     } catch (error: any) {
       const errors = error.payload.errors as {
         field: string;
         message: string;
       }[];
       const status = error.status as number;
-      console.log(errors, 112);
       if (status === 422) {
         errors.forEach((error) => {
           form.setError(error.field as "email" | "password", {

@@ -19,7 +19,7 @@ import {
   RegisterBody,
   RegisterBodyType,
 } from "@/schemaValidations/auth.schema";
-import envConfig from "@/app/config";
+import envConfig from "@/config";
 
 const RegisterForm: React.FC = () => {
   const form = useForm<RegisterBodyType>({

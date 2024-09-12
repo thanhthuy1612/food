@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/header";
+import AppProvider from "@/app/app-provider";
+import { cookies } from "next/headers";
 
 const roboto = Roboto({
   subsets: ["vietnamese"],
@@ -20,6 +22,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = cookies();
+  const sessionToken = cookieStore.get("sessionToken");
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={roboto.className}>
@@ -30,7 +34,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          {children}
+          <AppProvider initialSessionToken={sessionToken?.value ?? ""}>
+            {children}
+          </AppProvider>
           <Toaster />
         </ThemeProvider>
       </body>
