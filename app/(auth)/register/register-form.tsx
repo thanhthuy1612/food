@@ -19,9 +19,15 @@ import {
   RegisterBody,
   RegisterBodyType,
 } from "@/schemaValidations/auth.schema";
-import envConfig from "@/config";
+import authApiRequest from "@/apiRequest/auth";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { clientSessionToken } from "@/lib/http";
 
 const RegisterForm: React.FC = () => {
+  const { toast } = useToast();
+  const router = useRouter();
+
   const form = useForm<RegisterBodyType>({
     resolver: zodResolver(RegisterBody),
     defaultValues: {
@@ -32,14 +38,42 @@ const RegisterForm: React.FC = () => {
     },
   });
 
-  function onSubmit(values: RegisterBodyType) {
-    fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/register`, {
-      body: JSON.stringify(values),
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-    }).then((res) => res.json());
+  async function onSubmit(values: RegisterBodyType) {
+    try {
+      const result = await authApiRequest.register(values);
+      toast({
+        description: result.payload.message,
+      });
+      await authApiRequest.auth({
+        sessionToken: result.payload.data.token,
+        expiresAt: result.payload.data.expiresAt,
+      });
+      clientSessionToken.value = result.payload.data.token;
+      router.push("/me");
+    } catch (error: any) {
+      const errors = error.payload.errors as {
+        field: string;
+        message: string;
+      }[];
+      const status = error.status as number;
+      if (status === 422) {
+        errors.forEach((error) => {
+          form.setError(
+            error.field as "email" | "password" | "name" | "confirmPassword",
+            {
+              type: "server",
+              message: error.message,
+            }
+          );
+        });
+      } else {
+        toast({
+          title: "Lỗi",
+          description: error.payload.message,
+          variant: "destructive",
+        });
+      }
+    }
   }
 
   return (
