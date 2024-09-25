@@ -23,8 +23,10 @@ import authApiRequest from "@/apiRequest/auth";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { clientSessionToken } from "@/lib/http";
+import { handleErrorApi } from "@/lib/utils";
 
 const RegisterForm: React.FC = () => {
+  const [loading, setLoading] = React.useState<boolean>(false);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -39,40 +41,23 @@ const RegisterForm: React.FC = () => {
   });
 
   async function onSubmit(values: RegisterBodyType) {
+    if (loading) return;
+    setLoading(true);
     try {
       const result = await authApiRequest.register(values);
       toast({
-        description: result.payload.message,
+        description: result?.payload.message,
       });
       await authApiRequest.auth({
-        sessionToken: result.payload.data.token,
-        expiresAt: result.payload.data.expiresAt,
+        sessionToken: result?.payload.data.token,
+        expiresAt: result?.payload.data.expiresAt,
       });
-      clientSessionToken.value = result.payload.data.token;
+      clientSessionToken.value = result?.payload.data.token ?? "";
       router.push("/me");
     } catch (error: any) {
-      const errors = error.payload.errors as {
-        field: string;
-        message: string;
-      }[];
-      const status = error.status as number;
-      if (status === 422) {
-        errors.forEach((error) => {
-          form.setError(
-            error.field as "email" | "password" | "name" | "confirmPassword",
-            {
-              type: "server",
-              message: error.message,
-            }
-          );
-        });
-      } else {
-        toast({
-          title: "Lỗi",
-          description: error.payload.message,
-          variant: "destructive",
-        });
-      }
+      handleErrorApi({ error, setError: form.setError });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -90,7 +75,7 @@ const RegisterForm: React.FC = () => {
             <FormItem>
               <FormLabel>Tên</FormLabel>
               <FormControl>
-                <Input placeholder="Tên" {...field} />
+                <Input disabled={loading} placeholder="Tên" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -103,7 +88,12 @@ const RegisterForm: React.FC = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="Email" {...field} type="email" />
+                <Input
+                  disabled={loading}
+                  placeholder="Email"
+                  {...field}
+                  type="email"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -116,7 +106,12 @@ const RegisterForm: React.FC = () => {
             <FormItem>
               <FormLabel>Mật khẩu</FormLabel>
               <FormControl>
-                <Input placeholder="Mật khẩu" {...field} type="password" />
+                <Input
+                  disabled={loading}
+                  placeholder="Mật khẩu"
+                  {...field}
+                  type="password"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -130,6 +125,7 @@ const RegisterForm: React.FC = () => {
               <FormLabel>Nhập lại mật khẩu</FormLabel>
               <FormControl>
                 <Input
+                  disabled={loading}
                   placeholder="Nhập lại mật khẩu"
                   {...field}
                   type="password"
@@ -139,7 +135,7 @@ const RegisterForm: React.FC = () => {
             </FormItem>
           )}
         />
-        <Button type="submit" className="!mt-8 w-full">
+        <Button type="submit" className="!mt-8 w-full" disabled={loading}>
           Đăng ký
         </Button>
       </form>

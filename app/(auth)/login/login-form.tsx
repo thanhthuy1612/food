@@ -20,8 +20,10 @@ import { useToast } from "@/hooks/use-toast";
 import authApiRequest from "@/apiRequest/auth";
 import { useRouter } from "next/navigation";
 import { clientSessionToken } from "@/lib/http";
+import { handleErrorApi } from "@/lib/utils";
 
 const LoginForm: React.FC = () => {
+  const [loading, setLoading] = React.useState<boolean>(false);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -34,37 +36,23 @@ const LoginForm: React.FC = () => {
   });
 
   async function onSubmit(values: LoginBodyType) {
+    if (loading) return;
+    setLoading(true);
     try {
       const result = await authApiRequest.login(values);
       toast({
-        description: result.payload.message,
+        description: result?.payload.message,
       });
       await authApiRequest.auth({
-        sessionToken: result.payload.data.token,
-        expiresAt: result.payload.data.expiresAt,
+        sessionToken: result?.payload.data.token,
+        expiresAt: result?.payload.data.expiresAt,
       });
-      clientSessionToken.value = result.payload.data.token;
+      clientSessionToken.value = result?.payload.data.token ?? "";
       router.push("/me");
     } catch (error: any) {
-      const errors = error.payload.errors as {
-        field: string;
-        message: string;
-      }[];
-      const status = error.status as number;
-      if (status === 422) {
-        errors.forEach((error) => {
-          form.setError(error.field as "email" | "password", {
-            type: "server",
-            message: error.message,
-          });
-        });
-      } else {
-        toast({
-          title: "Lỗi",
-          description: error.payload.message,
-          variant: "destructive",
-        });
-      }
+      handleErrorApi({ error, setError: form.setError });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -82,7 +70,12 @@ const LoginForm: React.FC = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="Email" {...field} type="email" />
+                <Input
+                  disabled={loading}
+                  placeholder="Email"
+                  {...field}
+                  type="email"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -95,13 +88,18 @@ const LoginForm: React.FC = () => {
             <FormItem>
               <FormLabel>Mật khẩu</FormLabel>
               <FormControl>
-                <Input placeholder="Mật khẩu" {...field} type="password" />
+                <Input
+                  disabled={loading}
+                  placeholder="Mật khẩu"
+                  {...field}
+                  type="password"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="!mt-8 w-full">
+        <Button type="submit" className="!mt-8 w-full" disabled={loading}>
           Đăng nhập
         </Button>
       </form>
