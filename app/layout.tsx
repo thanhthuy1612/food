@@ -6,6 +6,7 @@ import "./globals.css";
 import Header from "@/components/header";
 import AppProvider from "@/app/app-provider";
 import { cookies } from "next/headers";
+import SlideSession from "@/components/slide-session";
 
 const roboto = Roboto({
   subsets: ["vietnamese"],
@@ -36,6 +37,7 @@ export default function RootLayout({
           <Header />
           <AppProvider initialSessionToken={sessionToken?.value ?? ""}>
             {children}
+            <SlideSession />
           </AppProvider>
           <Toaster />
         </ThemeProvider>
