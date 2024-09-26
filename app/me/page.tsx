@@ -1,7 +1,7 @@
 import accountApiRequest from "@/apiRequest/account";
-import Profile from "./profile";
 import { cookies } from "next/headers";
 import React from "react";
+import ProfileForm from "@/app/me/profile-form";
 
 export default async function MeProfile() {
   const cookieStore = cookies();
@@ -10,8 +10,7 @@ export default async function MeProfile() {
   return (
     <div>
       <h1>Profile</h1>
-      <div>Hello {result.payload.data?.name}</div>
-      <Profile />
+      {result?.payload.data && <ProfileForm profile={result?.payload.data} />}
     </div>
   );
 }
