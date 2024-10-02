@@ -3,6 +3,7 @@ import React from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import DeleteProduct from "@/components/products/delete-product";
 
 export default async function Page() {
   const result = await productApiRequest.getList();
@@ -30,7 +31,7 @@ export default async function Page() {
               <Link href={`/products/${item.id}`}>
                 <Button variant="outline">Sửa</Button>
               </Link>
-              <Button variant="destructive">Xóa</Button>
+              <DeleteProduct product={item} />
             </div>
           </div>
         ))}
