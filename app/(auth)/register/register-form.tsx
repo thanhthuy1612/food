@@ -54,6 +54,7 @@ const RegisterForm: React.FC = () => {
         description: result?.payload.message,
       });
       router.push("/me");
+      router.refresh();
     } catch (error: any) {
       handleErrorApi({ error, setError: form.setError });
     } finally {
