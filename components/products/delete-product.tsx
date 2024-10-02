@@ -3,21 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { ProductResType } from "@/schemaValidations/product.schema";
 import React from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import productApiRequest from "@/apiRequest/product";
 import { useToast } from "@/hooks/use-toast";
 import { handleErrorApi } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import AlertDialogCustom from "@/components/alert-dialog-custom";
 
 type Product = ProductResType["data"];
 
@@ -39,23 +29,13 @@ const DeleteProduct: React.FC<IDeleteProductProps> = ({ product }) => {
     }
   };
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="destructive">Xóa</Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Bạn muốn xóa sản phẩm?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Sản phẩm &rdquo;{product.name}&rdquo; sẽ được xóa
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Hủy</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Xóa</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <AlertDialogCustom
+      title="Bạn muốn xóa sản phẩm?"
+      description={`Sản phẩm "${product.name}" sẽ được xóa`}
+      handleActive={handleDelete}
+    >
+      <Button variant="destructive">Xóa</Button>
+    </AlertDialogCustom>
   );
 };
 export default DeleteProduct;
