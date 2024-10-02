@@ -10,6 +10,7 @@ import SlideSession from "@/components/slide-session";
 import accountApiRequest from "@/apiRequest/account";
 import { handleErrorApi } from "@/lib/utils";
 import { AccountResType } from "@/schemaValidations/account.schema";
+import { baseOpenGraph } from "@/app/shared-metadata";
 
 const roboto = Roboto({
   subsets: ["vietnamese"],
@@ -22,6 +23,7 @@ export const metadata: Metadata = {
     default: "Website đồ ăn",
   },
   description: "Thanh Thùy",
+  openGraph: baseOpenGraph,
 };
 
 export default async function RootLayout({
