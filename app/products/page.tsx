@@ -24,19 +24,21 @@ export default async function Page() {
       <div className="space-y-5">
         {productList.map((item) => (
           <div key={item.id} className="flex gap-5">
-            <Image
-              src={item.image}
-              alt={item.name}
-              width={100}
-              height={100}
-              className="w-32 h-32 object-cover"
-            />
+            <Link href={`/products/${item.id}`}>
+              <Image
+                src={item.image}
+                alt={item.name}
+                width={100}
+                height={100}
+                className="w-32 h-32 object-cover"
+              />
+            </Link>
             <h3>{item.name}</h3>
             <div>{item.description}</div>
             <div>{item.price}</div>
             {isAuthentication && (
               <div className="flex gap-3">
-                <Link href={`/products/${item.id}`}>
+                <Link href={`/products/${item.id}/edit`}>
                   <Button variant="outline">Sửa</Button>
                 </Link>
                 <DeleteProduct product={item} />

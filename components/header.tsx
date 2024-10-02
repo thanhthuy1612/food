@@ -8,7 +8,7 @@ export interface IHeaderProps {
 }
 export default async function Header({ user }: IHeaderProps) {
   return (
-    <>
+    <div className="flex gap-5 justify-end">
       <ul className="flex gap-5">
         <li>
           <Link href={"/products"}>Sản phẩm</Link>
@@ -32,6 +32,6 @@ export default async function Header({ user }: IHeaderProps) {
         )}
       </ul>
       <ModeToggle />
-    </>
+    </div>
   );
 }

@@ -191,7 +191,6 @@ export default function Page() {
     }
     const left = dfs(root.left, res);
     const right = dfs(root.right, res);
-    // console.log(res[0], left, right, root.val);
     res[0] = Math.max(res[0], left + right);
     return 1 + Math.max(left, right);
   };
@@ -199,7 +198,6 @@ export default function Page() {
   const diameterOfBinaryTree: (root: TreeNode | null) => number = (root) => {
     const res: number[] = [0];
     dfs(root, res);
-    // console.log(res[0], "result");
     return res[0];
   };
 
@@ -233,7 +231,6 @@ export default function Page() {
     }
     const left = balancedBinary(root.left);
     const right = balancedBinary(root.right);
-    // console.log(left, right, root.val);
     const res =
       left[0] === 1 && right[0] === 1 && Math.abs(left[1] - right[1]) <= 1
         ? 1
@@ -242,7 +239,6 @@ export default function Page() {
   };
   const isBalanced: (root: TreeNode | null) => boolean = (root) => {
     const res = balancedBinary(root)[0];
-    // console.log(res, "result");
     return res === 1;
   };
 
@@ -324,7 +320,6 @@ export default function Page() {
         ans[key] = [];
       }
       ans[key].push(s);
-      // console.log(s, count, key);
     }
     return Object.values(ans);
   };
