@@ -21,12 +21,18 @@ import { handleErrorApi } from "@/lib/utils";
 import {
   CreateProductBody,
   CreateProductBodyType,
+  ProductResType,
 } from "@/schemaValidations/product.schema";
 import productApiRequest from "@/apiRequest/product";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
 
-const ProductAddForm: React.FC = () => {
+type Product = ProductResType["data"];
+
+export interface IProductFormProps {
+  product?: Product;
+}
+const ProductForm: React.FC<IProductFormProps> = ({ product }) => {
   const [file, setFile] = React.useState<File | null>(null);
   const [loading, setLoading] = React.useState<boolean>(false);
 
@@ -38,35 +44,66 @@ const ProductAddForm: React.FC = () => {
   const form = useForm<CreateProductBodyType>({
     resolver: zodResolver(CreateProductBody),
     defaultValues: {
-      name: "",
-      price: 0,
-      description: "",
-      image: "",
+      name: product?.name ?? "",
+      price: product?.price ?? 0,
+      description: product?.description ?? "",
+      image: product?.image ?? "",
     },
   });
 
-  async function onSubmit(values: CreateProductBodyType) {
-    if (loading) return;
-    setLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file as Blob);
-      const uploadImageResult = await productApiRequest.uploadImage(formData);
-      const imageUrl = uploadImageResult?.payload.data;
+  const image = form.watch("image");
+
+  const uploadImage = async () => {
+    const formData = new FormData();
+    formData.append("file", file as Blob);
+
+    const uploadImageResult = await productApiRequest.uploadImage(formData);
+    return uploadImageResult?.payload.data;
+  };
+
+  const createProduct = async (values: CreateProductBodyType) => {
+    const imageUrl = await uploadImage();
+
+    if (imageUrl) {
+      const result = await productApiRequest.create({
+        ...values,
+        image: imageUrl,
+      });
+
+      return result;
+    }
+  };
+
+  const updateProduct = async (_values: CreateProductBodyType) => {
+    if (!product) return;
+    let values = _values;
+    if (file) {
+      const imageUrl = await uploadImage();
       if (imageUrl) {
-        const result = await productApiRequest.create({
+        values = {
           ...values,
           image: imageUrl,
-        });
-
-        toast({
-          description: result?.payload.message,
-        });
-        router.push("/products");
-        router.refresh();
+        };
       }
+    }
+
+    const result = await productApiRequest.update(product.id, values);
+
+    return result;
+  };
+
+  async function onSubmit(values: CreateProductBodyType) {
+    setLoading(true);
+    try {
+      const result = product
+        ? await updateProduct(values)
+        : await createProduct(values);
+      toast({
+        description: result?.payload.message,
+      });
+      router.push("/products");
+      router.refresh();
     } catch (error: any) {
-      console.log(error);
       handleErrorApi({
         error,
         setError: form.setError,
@@ -157,10 +194,10 @@ const ProductAddForm: React.FC = () => {
             </FormItem>
           )}
         />
-        {file && (
+        {(file || image) && (
           <>
             <Image
-              src={URL.createObjectURL(file)}
+              src={file ? URL.createObjectURL(file) : image}
               width={128}
               height={128}
               alt="preview"
@@ -182,11 +219,11 @@ const ProductAddForm: React.FC = () => {
           </>
         )}
         <Button type="submit" className="!mt-8 w-full" disabled={loading}>
-          Cập nhật
+          {product ? "Cập nhật sản phẩm" : "Thêm sản phẩm"}
         </Button>
       </form>
     </Form>
   );
 };
 
-export default ProductAddForm;
+export default ProductForm;

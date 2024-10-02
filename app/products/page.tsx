@@ -2,6 +2,7 @@ import productApiRequest from "@/apiRequest/product";
 import React from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function Page() {
   const result = await productApiRequest.getList();
@@ -9,6 +10,9 @@ export default async function Page() {
   return (
     <div>
       <h1>Product list</h1>
+      <Link href={"/products/add"}>
+        <Button variant="secondary">Thêm sản phẩm</Button>
+      </Link>
       <div className="space-y-5">
         {productList.map((item) => (
           <div key={item.id} className="flex gap-5">
@@ -23,7 +27,9 @@ export default async function Page() {
             <div>{item.description}</div>
             <div>{item.price}</div>
             <div className="flex gap-3">
-              <Button variant="outline">Sửa</Button>
+              <Link href={`/products/${item.id}`}>
+                <Button variant="outline">Sửa</Button>
+              </Link>
               <Button variant="destructive">Xóa</Button>
             </div>
           </div>
