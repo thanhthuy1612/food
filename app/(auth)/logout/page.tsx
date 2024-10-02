@@ -4,6 +4,12 @@ import authApiRequest from "@/apiRequest/auth";
 import { clientSessionToken } from "@/lib/http";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Đăng xuất",
+  description: "Thanh Thùy",
+};
 
 export default function Page() {
   const router = useRouter();

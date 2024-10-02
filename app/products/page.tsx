@@ -5,6 +5,12 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import DeleteProduct from "@/components/products/delete-product";
 import { cookies } from "next/headers";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Danh sách sản phẩm",
+  description: "Thanh Thùy",
+};
 
 export default async function Page() {
   const result = await productApiRequest.getList();
