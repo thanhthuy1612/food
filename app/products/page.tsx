@@ -4,16 +4,23 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import DeleteProduct from "@/components/products/delete-product";
+import { cookies } from "next/headers";
 
 export default async function Page() {
   const result = await productApiRequest.getList();
   const productList = result?.payload?.data ?? [];
+
+  const cookieStore = cookies();
+  const sessionToken = cookieStore.get("sessionToken")?.value;
+  const isAuthentication = Boolean(sessionToken);
   return (
     <div>
       <h1>Product list</h1>
-      <Link href={"/products/add"}>
-        <Button variant="secondary">Thêm sản phẩm</Button>
-      </Link>
+      {isAuthentication && (
+        <Link href={"/products/add"}>
+          <Button variant="secondary">Thêm sản phẩm</Button>
+        </Link>
+      )}
       <div className="space-y-5">
         {productList.map((item) => (
           <div key={item.id} className="flex gap-5">
@@ -27,12 +34,14 @@ export default async function Page() {
             <h3>{item.name}</h3>
             <div>{item.description}</div>
             <div>{item.price}</div>
-            <div className="flex gap-3">
-              <Link href={`/products/${item.id}`}>
-                <Button variant="outline">Sửa</Button>
-              </Link>
-              <DeleteProduct product={item} />
-            </div>
+            {isAuthentication && (
+              <div className="flex gap-3">
+                <Link href={`/products/${item.id}`}>
+                  <Button variant="outline">Sửa</Button>
+                </Link>
+                <DeleteProduct product={item} />
+              </div>
+            )}
           </div>
         ))}
       </div>
