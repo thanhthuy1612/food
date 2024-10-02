@@ -91,7 +91,11 @@ const request = async <Response>(
     [key: string]: string;
   } =
     body instanceof FormData
-      ? {}
+      ? {
+          Authorization: clientSessionToken.value
+            ? `Bearer ${clientSessionToken.value}`
+            : "",
+        }
       : {
           "Content-Type": "application/json",
           Authorization: clientSessionToken.value
