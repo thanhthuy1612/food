@@ -1,5 +1,8 @@
 import React from "react";
 
+
+// replace(/[^a-z0-9]/gi, '')
+
 export default function Page() {
   //Validate Parentheses
   const isValidateParentheses = (s: string) => {
