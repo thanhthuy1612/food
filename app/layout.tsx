@@ -58,7 +58,7 @@ export default async function RootLayout({
             {children}
             <SlideSession />
           </AppProvider>
-          <Toaster />
+          {/* <Toaster /> */}
         </ThemeProvider>
       </body>
     </html>
